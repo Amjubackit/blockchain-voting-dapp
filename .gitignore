@@ -1,0 +1,23 @@
+# Dependencies
+client/node_modules
+client/package-lock.json
+
+truffle/node_modules
+truffle/package-lock.json
+
+client/yarn.lock
+truffle/yarn.lock
+
+client/src/contracts
+
+# IDEs and editors
+/.idea
+
+# Misc
+.DS_Store
+*.pem
+*.log
+
+# Production #
+##############
+/build/
