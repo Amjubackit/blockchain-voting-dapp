@@ -38,6 +38,15 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 	useEffect(() => {
 		getElectionState();
 		getCandidates();
+		const candidateAddedListener = contract.events
+			.CandidateAdded()
+			.on('data', (event) => {
+				getCandidates(); // Refresh candidates list
+			});
+
+		return () => {
+			candidateAddedListener.unsubscribe(); // Cleanup listener on component unmount
+		};
 	}, [contract]);
 
 	const handleEnd = async () => {
@@ -112,8 +121,8 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 
 						<Grid item xs={12}>
 							<Typography align="center" variant="h6">
-								{electionState === 1 && 'SEE LIVE RESULTS'}
-								{electionState === 2 && 'FINAL ELECTION RESULT'}
+								{electionState === 1 && 'LIVE RESULTS'}
+								{electionState === 2 && 'FINAL RESULT'}
 							</Typography>
 							<Divider />
 						</Grid>
@@ -147,7 +156,7 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 							</Grid>
 						)}
 
-						{electionState > 0 && (
+						{
 							<Grid
 								item
 								xs={12}
@@ -169,7 +178,7 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 									</Box>
 								))}
 							</Grid>
-						)}
+						}
 					</Grid>
 				</Box>
 			)}

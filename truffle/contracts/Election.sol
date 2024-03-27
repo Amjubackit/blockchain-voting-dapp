@@ -30,6 +30,7 @@ contract Election {
     }
 
     event Voted(uint256 indexed _candidateId);
+    event CandidateAdded();
 
     function startElection() public {
         require(msg.sender == owner);
@@ -52,6 +53,7 @@ contract Election {
 
         candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);
         candidatesCount++;
+        emit CandidateAdded();
     }
 
     function getRole(address _current) public view returns (uint256) {

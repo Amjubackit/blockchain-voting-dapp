@@ -15,6 +15,9 @@ client/src/contracts
 
 # Misc
 .DS_Store
+truffle/.DS_Store
+client/.DS_Store
+client/src/.DS_Store
 *.pem
 *.log
 
