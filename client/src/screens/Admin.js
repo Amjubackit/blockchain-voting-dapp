@@ -4,10 +4,6 @@ import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 
 import Candidate from '../components/CandidateCard';
 import CandidateForm from '../components/CandidateForm';
@@ -16,8 +12,6 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 	const [electionState, setElectionState] = useState(0);
 	const [loading, setLoading] = useState(true);
 	const [candidates, setCandidates] = useState([]);
-
-	const [open, setOpen] = useState(false);
 
 	const getCandidates = async () => {
 		if (contract) {
@@ -46,15 +40,7 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 		getCandidates();
 	}, [contract]);
 
-	const handleEnd = () => {
-		setOpen(true);
-	};
-
-	const handleClose = () => {
-		setOpen(false);
-	};
-
-	const handleAgree = async () => {
+	const handleEnd = async () => {
 		if (electionState === 0) {
 			try {
 				if (contract) {
@@ -78,8 +64,6 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 				console.error('Error:', error);
 			}
 		}
-
-		setOpen(false);
 	};
 
 	return (
@@ -175,41 +159,18 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 									justifyContent: 'center',
 								}}
 							>
-								{candidates &&
-									candidates.map((candidate, index) => (
-										<Box sx={{ mx: 2 }} key={index}>
-											<Candidate
-												id={index}
-												name={candidate.name}
-												voteCount={candidate.votes}
-											/>
-										</Box>
-									))}
+								{candidates.map((candidate, index) => (
+									<Box sx={{ mx: 2 }} key={index}>
+										<Candidate
+											id={index}
+											name={candidate.name}
+											voteCount={candidate.votes}
+										/>
+									</Box>
+								))}
 							</Grid>
 						)}
 					</Grid>
-
-					<Dialog
-						open={open}
-						onClose={handleClose}
-						aria-labelledby="alert-dialog-title"
-						aria-describedby="alert-dialog-description"
-					>
-						<DialogContent>
-							<DialogContentText id="alert-dialog-description">
-								{electionState === 0 &&
-									'Do you want to start the election?'}
-								{electionState === 1 &&
-									'Do you want to end the election?'}
-							</DialogContentText>
-						</DialogContent>
-						<DialogActions>
-							<Button onClick={handleClose}>Disagree</Button>
-							<Button onClick={handleAgree} autoFocus>
-								Agree
-							</Button>
-						</DialogActions>
-					</Dialog>
 				</Box>
 			)}
 		</Box>
