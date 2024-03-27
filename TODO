@@ -1,0 +1,7 @@
+Remove confirm message before starting and ending election
+replace election status number with enum
+set countdown to election start client only
+set voting time block - how to close voting automaticly when time is up?
+Admmin & User - Final results - sort results, show bars
+Admin - show added candidates when adding, maybe option to delete as long as election didnt start
+
