@@ -4,9 +4,10 @@ import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-
+import { ElectionStateEnum } from '../utils/enums';
 import Candidate from '../components/CandidateCard';
 import CandidateForm from '../components/CandidateForm';
+import StartElection from '../components/StartElection';
 
 export default function Admin({ role, contract, web3, currentAccount }) {
 	const [electionState, setElectionState] = useState(0);
@@ -41,37 +42,24 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 		const candidateAddedListener = contract.events
 			.CandidateAdded()
 			.on('data', (event) => {
-				getCandidates(); // Refresh candidates list
+				getCandidates();
 			});
 
 		return () => {
-			candidateAddedListener.unsubscribe(); // Cleanup listener on component unmount
+			candidateAddedListener.unsubscribe();
 		};
 	}, [contract]);
 
 	const handleEnd = async () => {
-		if (electionState === 0) {
-			try {
-				if (contract) {
-					await contract.methods
-						.startElection()
-						.send({ from: currentAccount });
-					getElectionState();
-				}
-			} catch (error) {
-				console.error('Error:', error);
+		try {
+			if (contract) {
+				await contract.methods
+					.endElection()
+					.send({ from: currentAccount });
+				getElectionState();
 			}
-		} else if (electionState === 1) {
-			try {
-				if (contract) {
-					await contract.methods
-						.endElection()
-						.send({ from: currentAccount });
-					getElectionState();
-				}
-			} catch (error) {
-				console.error('Error:', error);
-			}
+		} catch (error) {
+			console.error('Error:', error);
 		}
 	};
 
@@ -98,25 +86,39 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 								color="textSecondary"
 							>
 								ELECTION STATUS :{' '}
-								{electionState === 0 &&
+								{electionState ===
+									ElectionStateEnum.NOT_STARTED &&
 									'Election has not started.'}
-								{electionState === 1 &&
+								{electionState ===
+									ElectionStateEnum.IN_PROGRESS &&
 									'Election is in progress.'}
-								{electionState === 2 && 'Election has ended.'}
+								{electionState === ElectionStateEnum.ENDED &&
+									'Election has ended.'}
 							</Typography>
 							<Divider />
 						</Grid>
-						{electionState !== 2 && (
+						{electionState === ElectionStateEnum.NOT_STARTED && (
 							<Grid item xs={12} sx={{ display: 'flex' }}>
-								<Button
-									variant="contained"
-									sx={{ width: '40%', margin: 'auto' }}
-									onClick={handleEnd}
-								>
-									{electionState === 0 && 'Start Election'}
-									{electionState === 1 && 'End Election'}
-								</Button>
+								<StartElection
+									contract={contract}
+									currentAccount={currentAccount}
+								/>
+								<CandidateForm
+									contract={contract}
+									web3={web3}
+									currentAccount={currentAccount}
+								/>
 							</Grid>
+						)}
+						{electionState === ElectionStateEnum.IN_PROGRESS && (
+							<Button
+								variant="contained"
+								type="submit"
+								sx={{ width: '30%', margin: 'auto' }}
+								onClick={handleEnd}
+							>
+								End election
+							</Button>
 						)}
 
 						<Grid item xs={12}>
@@ -127,7 +129,7 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 							<Divider />
 						</Grid>
 
-						{electionState === 0 && (
+						{electionState === ElectionStateEnum.NOT_STARTED && (
 							<Grid
 								item
 								xs={12}
@@ -146,13 +148,7 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 										width: '100%',
 										alignItems: 'center',
 									}}
-								>
-									<CandidateForm
-										contract={contract}
-										web3={web3}
-										currentAccount={currentAccount}
-									/>
-								</Box>
+								></Box>
 							</Grid>
 						)}
 
