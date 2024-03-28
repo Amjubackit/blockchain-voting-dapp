@@ -20,8 +20,8 @@ export default function Candidate({ id, name, voteCount }) {
 			<CardContent sx={{ padding: 0 }}>
 				<CardMedia
 					component="img"
-					height="190"
-					width="130"
+					height="150"
+					width="100"
 					image={defaultAvatar}
 				/>
 			</CardContent>
