@@ -21,6 +21,7 @@ client/src/.DS_Store
 *.pem
 *.log
 .vscode
+
 # Production #
 ##############
 /build/
