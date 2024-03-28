@@ -9,7 +9,6 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
-
 import Candidate from '../components/CandidateCard';
 
 export default function Vote({ contract, currentAccount }) {
@@ -51,11 +50,6 @@ export default function Vote({ contract, currentAccount }) {
 		}
 	};
 
-	useEffect(() => {
-		getElectionState();
-		getCandidates();
-	}, [contract]);
-
 	const handleVoteChange = (event) => {
 		setVote(event.target.value);
 	};
@@ -64,6 +58,11 @@ export default function Vote({ contract, currentAccount }) {
 		event.preventDefault();
 		voteCandidate(vote);
 	};
+
+	useEffect(() => {
+		getElectionState();
+		getCandidates();
+	}, [contract]);
 
 	return (
 		<Box>
@@ -77,11 +76,10 @@ export default function Vote({ contract, currentAccount }) {
 					<Grid item xs={12}>
 						<Typography align="center" variant="h6">
 							{electionState === 0 &&
-								'Please Wait... Election has not started yet.'}
+								'WAIT FOR ELECTION TO START'}
 							{electionState === 1 &&
 								'VOTE FOR YOUR FAVORITE CANDIDATE'}
-							{electionState === 2 &&
-								'Election has ended. See the results below.'}
+							{electionState === 2 && 'ELECTION ENDED.'}
 						</Typography>
 						<Divider />
 					</Grid>

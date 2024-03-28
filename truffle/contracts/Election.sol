@@ -16,12 +16,13 @@ contract Election {
 
     address public owner;
     State public electionState;
+    uint256 public startTime;
+    uint256 public duration; // Duration of the election in minutes
 
     mapping(uint256 => Candidate) candidates;
     mapping(address => bool) voted;
 
     uint256 public candidatesCount = 0;
-
     uint256 public votersCount = 0;
 
     constructor() {
@@ -33,10 +34,22 @@ contract Election {
     event CandidateAdded();
     event ElectionStateChanged();
 
-    function startElection() public {
+    modifier isVotingAllowed() {
+        require(
+            electionState == State.InProgress &&
+                block.timestamp >= startTime &&
+                block.timestamp <= startTime + duration,
+            "Election has ended"
+        );
+        _;
+    }
+
+    function startElection(uint256 _duration) public {
         require(msg.sender == owner);
         require(electionState == State.NotStarted);
         electionState = State.InProgress;
+        startTime = block.timestamp;
+        duration = _duration * 60;
         emit ElectionStateChanged();
     }
 
@@ -67,11 +80,7 @@ contract Election {
         }
     }
 
-    function vote(uint256 _candidateId) public {
-        require(
-            electionState == State.InProgress,
-            "Election is not in progress"
-        );
+    function vote(uint256 _candidateId) public isVotingAllowed {
         require(!voted[msg.sender], "You have already voted");
         require(
             _candidateId >= 0 && _candidateId < candidatesCount,

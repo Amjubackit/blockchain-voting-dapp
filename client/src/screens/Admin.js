@@ -5,14 +5,13 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import { ElectionStateEnum } from '../utils/enums';
+import CreateElection from '../components/CreateElection';
 import Candidate from '../components/CandidateCard';
-import CandidateForm from '../components/CandidateForm';
-import StartElection from '../components/StartElection';
 
-export default function Admin({ role, contract, web3, currentAccount }) {
+export default function Admin({ contract, web3, currentAccount }) {
 	const [electionState, setElectionState] = useState(0);
-	const [loading, setLoading] = useState(true);
 	const [candidates, setCandidates] = useState([]);
+	const [loading, setLoading] = useState(false);
 
 	const getCandidates = async () => {
 		if (contract) {
@@ -34,27 +33,8 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 			const state = await contract.methods.electionState().call();
 			setElectionState(parseInt(state));
 		}
+		setLoading(false);
 	};
-
-	useEffect(() => {
-		getElectionState();
-		getCandidates();
-		const candidateAddedListener = contract.events
-			.CandidateAdded()
-			.on('data', (event) => {
-				getCandidates();
-			});
-		const stateChangedListener = contract.events
-			.ElectionStateChanged()
-			.on('data', (event) => {
-				getElectionState();
-			});
-
-		return () => {
-			candidateAddedListener.unsubscribe();
-			stateChangedListener.unsubscribe();
-		};
-	}, [contract]);
 
 	const handleEnd = async () => {
 		try {
@@ -68,6 +48,27 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 			console.error('Error:', error);
 		}
 	};
+
+	useEffect(() => {
+		getCandidates();
+		getElectionState();
+		const candidateAddedListener = contract.events
+			.CandidateAdded()
+			.on('data', (event) => {
+				getCandidates();
+			});
+
+		const stateChangedListener = contract.events
+			.ElectionStateChanged()
+			.on('data', (event) => {
+				getElectionState();
+			});
+
+		return () => {
+			candidateAddedListener.unsubscribe();
+			stateChangedListener.unsubscribe();
+		};
+	}, [contract]);
 
 	return (
 		<Box>
@@ -84,89 +85,52 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 				</Box>
 			) : (
 				<Box>
-					<Grid container sx={{ mt: 0 }} spacing={4}>
-						<Grid item xs={12}>
-							<Typography
-								align="center"
-								variant="h6"
-								color="textSecondary"
-							>
-								ELECTION STATUS :{' '}
-								{electionState ===
-									ElectionStateEnum.NOT_STARTED &&
-									'Election has not started.'}
-								{electionState ===
-									ElectionStateEnum.IN_PROGRESS &&
-									'Election is in progress.'}
-								{electionState === ElectionStateEnum.ENDED &&
-									'Election has ended.'}
-							</Typography>
-							<Divider />
-						</Grid>
-						{electionState === ElectionStateEnum.NOT_STARTED && (
-							<Grid item xs={12} sx={{ display: 'flex' }}>
-								<StartElection
-									contract={contract}
-									currentAccount={currentAccount}
-								/>
-								<CandidateForm
-									contract={contract}
-									web3={web3}
-									currentAccount={currentAccount}
-								/>
+					{electionState !== ElectionStateEnum.NOT_STARTED && (
+						<Grid container sx={{ mt: 0 }} spacing={4}>
+							<Grid item xs={12}>
+								<Typography
+									align="center"
+									variant="h6"
+									color="textSecondary"
+								>
+									ELECTION STATUS :{' '}
+									{electionState ===
+										ElectionStateEnum.IN_PROGRESS &&
+										'Election is in progress.'}
+									{electionState ===
+										ElectionStateEnum.ENDED &&
+										'Election has ended.'}
+								</Typography>
+								<Divider />
 							</Grid>
-						)}
-						{electionState === ElectionStateEnum.IN_PROGRESS && (
-							<Button
-								variant="contained"
-								sx={{ width: '30%', margin: 'auto' }}
-								onClick={handleEnd}
-							>
-								End election
-							</Button>
-						)}
+							<Grid item xs={12} align="center">
+								{electionState ===
+									ElectionStateEnum.IN_PROGRESS && (
+									<Button
+										variant="contained"
+										sx={{ width: '30%', margin: 'auto' }}
+										onClick={handleEnd}
+									>
+										End election
+									</Button>
+								)}
+							</Grid>
 
-						<Grid item xs={12}>
-							<Typography align="center" variant="h6">
-								{electionState === 1 && 'LIVE RESULTS'}
-								{electionState === 2 && 'FINAL RESULT'}
-							</Typography>
-							<Divider />
-						</Grid>
-
-						{electionState === ElectionStateEnum.NOT_STARTED && (
-							<Grid
-								item
-								xs={12}
+							<Grid item xs={12}>
+								<Typography align="center" variant="h6">
+									{electionState === 1 && 'LIVE RESULTS'}
+									{electionState === 2 && 'FINAL RESULT'}
+								</Typography>
+								<Divider />
+							</Grid>
+							<Box
 								sx={{
 									overflowY: 'hidden',
 									overflowX: 'auto',
 									display: 'flex',
-									width: '98vw',
+									width: '100%',
 									justifyContent: 'center',
-								}}
-							>
-								<Box
-									sx={{
-										display: 'flex',
-										flexDirection: 'column',
-										width: '100%',
-										alignItems: 'center',
-									}}
-								></Box>
-							</Grid>
-						)}
-
-						{
-							<Grid
-								item
-								xs={12}
-								sx={{
-									overflowY: 'hidden',
-									overflowX: 'auto',
-									display: 'flex',
-									width: '98vw',
-									justifyContent: 'center',
+									marginTop: 4,
 								}}
 							>
 								{candidates.map((candidate, index) => (
@@ -178,9 +142,17 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 										/>
 									</Box>
 								))}
-							</Grid>
-						}
-					</Grid>
+							</Box>
+						</Grid>
+					)}
+
+					{electionState === ElectionStateEnum.NOT_STARTED && (
+						<CreateElection
+							contract={contract}
+							web3={web3}
+							currentAccount={currentAccount}
+						/>
+					)}
 				</Box>
 			)}
 		</Box>

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { Stack } from '@mui/material';
@@ -25,30 +24,17 @@ export default function CandidateForm({ contract, web3, currentAccount }) {
 	};
 
 	return (
-		<Box
-			component="form"
-			sx={{
-				display: 'flex',
-				flexDirection: 'column',
-				padding: '1rem',
-				width: '50%',
-			}}
-			noValidate
-			autoComplete="off"
-			onSubmit={handleForm}
-		>
-			<Stack spacing={2}>
-				<TextField
-					id="outlined-basic"
-					label="Candiate Name"
-					variant="outlined"
-					value={name}
-					onChange={handleNameChange}
-				/>
-				<Button variant="contained" type="submit">
-					Add Candidates
-				</Button>
-			</Stack>
-		</Box>
+		<Stack spacing={2} marginRight={5}>
+			<TextField
+				id="outlined-basic"
+				label="Candidate Name"
+				variant="outlined"
+				value={name}
+				onChange={handleNameChange}
+			/>
+			<Button variant="contained" onClick={handleForm}>
+				Add Candidates
+			</Button>
+		</Stack>
 	);
 }

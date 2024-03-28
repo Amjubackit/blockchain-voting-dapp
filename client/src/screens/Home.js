@@ -7,6 +7,7 @@ import getWeb3 from '../utils/getWeb3';
 import RoleEnum from '../utils/enums';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header.js';
+import CountdownTimer from '../components/CountdownTimer.js';
 
 export default function Home() {
 	console.log('Home called');
@@ -16,6 +17,25 @@ export default function Home() {
 	const [currentAccount, setCurrentAccount] = useState(null);
 	const [contract, setContract] = useState(null);
 	const [loading, setLoading] = useState(true);
+
+	// Load state from local storage to fix state wipe on refresh
+	const [showCountdown, setShowCountdown] = useState(() => {
+		return localStorage.getItem('showCountdown') || false;
+	});
+
+	const [electionCreated, setElectionCreated] = useState(() => {
+		return localStorage.getItem('electionCreated') || false;
+	});
+
+	const [countdown, setCountdown] = useState(() => {
+		const savedCountdown = localStorage.getItem('countdown');
+		return savedCountdown ? Number(savedCountdown) : 0;
+	});
+
+	const [contractDuration, setContractDuration] = useState(() => {
+		const savedDuration = localStorage.getItem('contractDuration');
+		return savedDuration ? Number(savedDuration) : 0;
+	});
 
 	const loadWeb3 = async () => {
 		try {
@@ -47,9 +67,45 @@ export default function Home() {
 		}
 	};
 
+	const handleOnCountdownComplete = async () => {
+		setShowCountdown(false);
+		localStorage.clear();
+
+		try {
+			if (contract) {
+				await contract.methods
+					.startElection(contractDuration)
+					.send({ from: currentAccount });
+			}
+			setLoading(false);
+		} catch (error) {
+			console.error('Error:', error);
+		}
+	};
+
 	useEffect(() => {
 		loadWeb3();
 		getRole();
+		const handleElectionCreated = (event) => {
+			const { duration, startCountdown } = event.detail;
+			setCountdown(startCountdown);
+			setContractDuration(duration);
+			setElectionCreated(true);
+			setShowCountdown(true);
+			localStorage.setItem('countdown', startCountdown.toString());
+			localStorage.setItem('contractDuration', duration.toString());
+			localStorage.setItem('electionCreated', true.toString());
+			localStorage.setItem('showCountdown', true.toString());
+		};
+
+		window.addEventListener('electionCreated', handleElectionCreated);
+
+		return () => {
+			window.removeEventListener(
+				'electionCreated',
+				handleElectionCreated
+			);
+		};
 	}, [contract]);
 
 	return (
@@ -74,20 +130,28 @@ export default function Home() {
 			) : (
 				<Box>
 					<Header role={role} />
-					{role === RoleEnum.ADMIN && (
-						<Admin
-							role={role}
-							contract={contract}
-							web3={web3}
-							currentAccount={currentAccount}
-						/>
+					{(!electionCreated || !showCountdown) && (
+						<Box>
+							{role === RoleEnum.ADMIN && (
+								<Admin
+									contract={contract}
+									web3={web3}
+									currentAccount={currentAccount}
+								/>
+							)}
+							{role === RoleEnum.USER && (
+								<Vote
+									contract={contract}
+									currentAccount={currentAccount}
+								/>
+							)}
+						</Box>
 					)}
-					{role === RoleEnum.USER && (
-						<Vote
-							role={role}
-							contract={contract}
-							web3={web3}
-							currentAccount={currentAccount}
+					{showCountdown && (
+						<CountdownTimer
+							text={'Election Starts In'}
+							duration={countdown}
+							onCountdownComplete={handleOnCountdownComplete}
 						/>
 					)}
 				</Box>
