@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
+import { ElectionStateEnum } from '../utils/enums';
 
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
@@ -43,13 +44,6 @@ export default function Vote({ contract, currentAccount }) {
 		}
 	};
 
-	const getElectionState = async () => {
-		if (contract) {
-			const state = await contract.methods.electionState().call();
-			setElectionState(parseInt(state));
-		}
-	};
-
 	const handleVoteChange = (event) => {
 		setVote(event.target.value);
 	};
@@ -60,9 +54,17 @@ export default function Vote({ contract, currentAccount }) {
 	};
 
 	useEffect(() => {
-		getElectionState();
 		getCandidates();
-	}, [contract]);
+		if (contract) {
+			const stateChangedListener = contract.events
+				.ElectionStateChanged()
+				.on('data', (event) => {
+					setElectionState(event.returnValues.newState);
+				});
+
+			return () => stateChangedListener.unsubscribe();
+		}
+	}, []);
 
 	return (
 		<Box>
@@ -74,12 +76,13 @@ export default function Vote({ contract, currentAccount }) {
 					justifyContent="center"
 				>
 					<Grid item xs={12}>
-						<Typography align="center" variant="h6">
-							{electionState === 0 &&
+						<Typography marginTop={2} align="center" variant="h6">
+							{electionState === ElectionStateEnum.NOT_STARTED &&
 								'WAIT FOR ELECTION TO START'}
-							{electionState === 1 &&
+							{electionState === ElectionStateEnum.IN_PROGRESS &&
 								'VOTE FOR YOUR FAVORITE CANDIDATE'}
-							{electionState === 2 && 'ELECTION ENDED.'}
+							{electionState === ElectionStateEnum.ENDED &&
+								'ELECTION ENDED.'}
 						</Typography>
 						<Divider />
 					</Grid>

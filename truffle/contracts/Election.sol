@@ -32,7 +32,7 @@ contract Election {
 
     event Voted(uint256 indexed _candidateId);
     event CandidateAdded();
-    event ElectionStateChanged();
+    event ElectionStateChanged(State newState);
 
     modifier isVotingAllowed() {
         require(
@@ -50,14 +50,14 @@ contract Election {
         electionState = State.InProgress;
         startTime = block.timestamp;
         duration = _duration * 60;
-        emit ElectionStateChanged();
+        emit ElectionStateChanged(electionState);
     }
 
     function endElection() public {
         require(msg.sender == owner);
         require(electionState == State.InProgress);
         electionState = State.Ended;
-        emit ElectionStateChanged();
+        emit ElectionStateChanged(electionState);
     }
 
     function addCandidate(string memory _name) public {

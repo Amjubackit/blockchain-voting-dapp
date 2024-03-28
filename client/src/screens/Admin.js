@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-import { ElectionStateEnum } from '../utils/enums';
+import RoleEnum, { ElectionStateEnum } from '../utils/enums';
 import CreateElection from '../components/CreateElection';
 import Candidate from '../components/CandidateCard';
 
-export default function Admin({ contract, web3, currentAccount }) {
+export default function Admin({ role, contract, web3, currentAccount }) {
 	const [electionState, setElectionState] = useState(0);
 	const [candidates, setCandidates] = useState([]);
 	const [loading, setLoading] = useState(false);
@@ -28,30 +27,8 @@ export default function Admin({ contract, web3, currentAccount }) {
 		}
 	};
 
-	const getElectionState = async () => {
-		if (contract) {
-			const state = await contract.methods.electionState().call();
-			setElectionState(parseInt(state));
-		}
-		setLoading(false);
-	};
-
-	const handleEnd = async () => {
-		try {
-			if (contract) {
-				await contract.methods
-					.endElection()
-					.send({ from: currentAccount });
-				getElectionState();
-			}
-		} catch (error) {
-			console.error('Error:', error);
-		}
-	};
-
 	useEffect(() => {
 		getCandidates();
-		getElectionState();
 		const candidateAddedListener = contract.events
 			.CandidateAdded()
 			.on('data', (event) => {
@@ -61,7 +38,7 @@ export default function Admin({ contract, web3, currentAccount }) {
 		const stateChangedListener = contract.events
 			.ElectionStateChanged()
 			.on('data', (event) => {
-				getElectionState();
+				setElectionState(event.returnValues.newState);
 			});
 
 		return () => {
@@ -103,19 +80,6 @@ export default function Admin({ contract, web3, currentAccount }) {
 								</Typography>
 								<Divider />
 							</Grid>
-							<Grid item xs={12} align="center">
-								{electionState ===
-									ElectionStateEnum.IN_PROGRESS && (
-									<Button
-										variant="contained"
-										sx={{ width: '30%', margin: 'auto' }}
-										onClick={handleEnd}
-									>
-										End election
-									</Button>
-								)}
-							</Grid>
-
 							<Grid item xs={12}>
 								<Typography align="center" variant="h6">
 									{electionState === 1 && 'LIVE RESULTS'}

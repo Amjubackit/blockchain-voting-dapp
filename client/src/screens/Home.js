@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import Vote from './Vote';
 import Admin from './Admin';
 import ElectionContract from '../contracts/Election.json';
 import getWeb3 from '../utils/getWeb3';
-import RoleEnum from '../utils/enums';
+import RoleEnum, { ElectionStateEnum } from '../utils/enums';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header.js';
 import CountdownTimer from '../components/CountdownTimer.js';
@@ -17,6 +18,7 @@ export default function Home() {
 	const [currentAccount, setCurrentAccount] = useState(null);
 	const [contract, setContract] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const [electionState, setElectionState] = useState(0);
 
 	// Load state from local storage to fix state wipe on refresh
 	const [showCountdown, setShowCountdown] = useState(() => {
@@ -52,6 +54,7 @@ export default function Home() {
 			setCurrentAccount(accounts[0]);
 			setContract(instance);
 			setLoading(false);
+			console.log('loadWeb3 finished');
 		} catch (error) {
 			console.error('Error:', error);
 			navigate('/');
@@ -72,7 +75,7 @@ export default function Home() {
 		localStorage.clear();
 
 		try {
-			if (contract) {
+			if (contract && role === RoleEnum.ADMIN) {
 				await contract.methods
 					.startElection(contractDuration)
 					.send({ from: currentAccount });
@@ -83,9 +86,35 @@ export default function Home() {
 		}
 	};
 
+	const handleEnd = async () => {
+		try {
+			if (contract && role === RoleEnum.ADMIN) {
+				await contract.methods
+					.endElection()
+					.send({ from: currentAccount });
+			}
+		} catch (error) {
+			console.error('Error:', error);
+		}
+	};
+
 	useEffect(() => {
-		loadWeb3();
 		getRole();
+		const initWeb3AndContract = async () => {
+			await loadWeb3();
+			if (contract) {
+				const stateChangedListener = contract.events
+					.ElectionStateChanged()
+					.on('data', (event) => {
+						setElectionState(event.returnValues.newState);
+					});
+
+				return () => stateChangedListener.unsubscribe();
+			}
+		};
+
+		initWeb3AndContract();
+
 		const handleElectionCreated = (event) => {
 			const { duration, startCountdown } = event.detail;
 			setCountdown(startCountdown);
@@ -130,10 +159,22 @@ export default function Home() {
 			) : (
 				<Box>
 					<Header role={role} />
+					<Grid item xs={12} align="center">
+						{electionState === ElectionStateEnum.IN_PROGRESS && (
+							<CountdownTimer
+								text={'Election Ends In'}
+								duration={contractDuration}
+								onCountdownComplete={handleEnd}
+								variant={'h6'}
+								itemType={'contractDuration'}
+							/>
+						)}
+					</Grid>
 					{(!electionCreated || !showCountdown) && (
 						<Box>
 							{role === RoleEnum.ADMIN && (
 								<Admin
+									role={role}
 									contract={contract}
 									web3={web3}
 									currentAccount={currentAccount}
@@ -152,6 +193,8 @@ export default function Home() {
 							text={'Election Starts In'}
 							duration={countdown}
 							onCountdownComplete={handleOnCountdownComplete}
+							variant={'h1'}
+							itemType={'countdown'}
 						/>
 					)}
 				</Box>
