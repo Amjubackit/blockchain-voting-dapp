@@ -6,6 +6,8 @@ export default function CountdownTimer({
 	duration,
 	onCountdownComplete,
 	text,
+	variant,
+	itemType,
 }) {
 	const [startCountdown, setCountdown] = useState(duration * 60);
 
@@ -19,7 +21,7 @@ export default function CountdownTimer({
 					return 0;
 				}
 				localStorage.setItem(
-					'countdown',
+					itemType,
 					(updatedCountdown / 60).toString()
 				);
 				return updatedCountdown;
@@ -43,10 +45,9 @@ export default function CountdownTimer({
 				display: 'flex',
 				justifyContent: 'center',
 				alignItems: 'center',
-				height: '80vh',
 			}}
 		>
-			<Typography align="center" variant="h1" color="textSecondary">
+			<Typography align="center" variant={variant} color="textSecondary">
 				{text}
 				<br />
 				{formatTime(startCountdown)}
