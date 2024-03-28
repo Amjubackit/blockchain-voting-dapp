@@ -30,8 +30,8 @@ export default function CandidateForm({ contract, web3, currentAccount }) {
 			sx={{
 				display: 'flex',
 				flexDirection: 'column',
-				padding: '2rem',
-				width: '40%',
+				padding: '1rem',
+				width: '50%',
 			}}
 			noValidate
 			autoComplete="off"

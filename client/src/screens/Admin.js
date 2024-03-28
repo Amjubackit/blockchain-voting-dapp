@@ -44,9 +44,15 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 			.on('data', (event) => {
 				getCandidates();
 			});
+		const stateChangedListener = contract.events
+			.ElectionStateChanged()
+			.on('data', (event) => {
+				getElectionState();
+			});
 
 		return () => {
 			candidateAddedListener.unsubscribe();
+			stateChangedListener.unsubscribe();
 		};
 	}, [contract]);
 
@@ -113,7 +119,6 @@ export default function Admin({ role, contract, web3, currentAccount }) {
 						{electionState === ElectionStateEnum.IN_PROGRESS && (
 							<Button
 								variant="contained"
-								type="submit"
 								sx={{ width: '30%', margin: 'auto' }}
 								onClick={handleEnd}
 							>

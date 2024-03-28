@@ -31,17 +31,20 @@ contract Election {
 
     event Voted(uint256 indexed _candidateId);
     event CandidateAdded();
+    event ElectionStateChanged();
 
     function startElection() public {
         require(msg.sender == owner);
         require(electionState == State.NotStarted);
         electionState = State.InProgress;
+        emit ElectionStateChanged();
     }
 
     function endElection() public {
         require(msg.sender == owner);
         require(electionState == State.InProgress);
         electionState = State.Ended;
+        emit ElectionStateChanged();
     }
 
     function addCandidate(string memory _name) public {

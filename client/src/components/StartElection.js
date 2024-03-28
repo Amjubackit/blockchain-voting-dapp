@@ -16,9 +16,7 @@ export default function StartElection({ contract, currentAccount }) {
 		setDuration(event.target.value.replace(/[^0-9]/g, ''));
 	};
 
-	const handleSubmit = async (event) => {
-		event.preventDefault();
-		console.log('Election settings updated:', { startCooldown, duration });
+	const handleSubmit = async () => {
 		try {
 			if (contract) {
 				await contract.methods
@@ -37,11 +35,10 @@ export default function StartElection({ contract, currentAccount }) {
 				display: 'flex',
 				flexDirection: 'column',
 				padding: '1rem',
-				width: '40%',
+				width: '50%',
 			}}
 			noValidate
 			autoComplete="off"
-			onSubmit={handleSubmit}
 		>
 			<Stack spacing={2}>
 				<TextField
@@ -50,8 +47,8 @@ export default function StartElection({ contract, currentAccount }) {
 					variant="outlined"
 					value={startCooldown}
 					onChange={handleCooldownChange}
-					type="text" // Using type="text" with replace logic to avoid default number input behavior
-					InputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} // Ensures mobile keyboards are numeric
+					type="text"
+					InputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
 				/>
 				<TextField
 					id="duration"
@@ -59,10 +56,10 @@ export default function StartElection({ contract, currentAccount }) {
 					variant="outlined"
 					value={duration}
 					onChange={handleDurationChange}
-					type="text" // Using type="text" with replace logic to avoid default number input behavior
-					InputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} // Ensures mobile keyboards are numeric
+					type="text"
+					InputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
 				/>
-				<Button variant="contained" type="submit">
+				<Button variant="contained" onClick={handleSubmit}>
 					Start election
 				</Button>
 			</Stack>
