@@ -196,7 +196,7 @@ export default function Home() {
 					)}
 					{preElectionPeriod !== 0 && (
 						<CountdownTimer
-							text={'Countdown to Election Start'}
+							text={'Countdown to Elections Start'}
 							duration={preElectionPeriod}
 							onCountdownComplete={handleCountdownComplete}
 							variant={'h2'}

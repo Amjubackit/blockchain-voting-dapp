@@ -93,11 +93,11 @@ export default function Vote({ contract, currentAccount }) {
 					<Grid item xs={12}>
 						<Typography marginTop={2} align="center" variant="h6">
 							{electionState === ElectionStateEnum.NOT_STARTED &&
-								'WAIT FOR ELECTION TO START'}
+								'WAIT FOR ELECTIONS TO START'}
 							{electionState === ElectionStateEnum.IN_PROGRESS &&
 								'VOTE FOR YOUR FAVORITE CANDIDATE'}
 							{electionState === ElectionStateEnum.ENDED &&
-								'ELECTION ENDED'}
+								'ELECTIONS HAS ENDED'}
 						</Typography>
 						<Divider />
 					</Grid>

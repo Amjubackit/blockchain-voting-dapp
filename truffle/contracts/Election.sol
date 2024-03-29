@@ -39,7 +39,7 @@ contract Election {
             electionState == State.InProgress &&
                 block.timestamp >= startTime &&
                 block.timestamp <= startTime + duration,
-            "Election has ended"
+            "Elections has ended"
         );
         _;
     }
@@ -64,7 +64,7 @@ contract Election {
         require(owner == msg.sender, "Only owner can add candidates");
         require(
             electionState == State.NotStarted,
-            "Election has already started"
+            "Elections has already started"
         );
 
         candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);

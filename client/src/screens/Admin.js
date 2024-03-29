@@ -80,13 +80,13 @@ export default function Admin({ contract, web3, currentAccount }) {
 									variant="h6"
 									color="textSecondary"
 								>
-									ELECTION STATUS :{' '}
+									ELECTIONS STATUS :{' '}
 									{electionState ===
 										ElectionStateEnum.IN_PROGRESS &&
-										'Election is in progress.'}
+										'Elections is in progress.'}
 									{electionState ===
 										ElectionStateEnum.ENDED &&
-										'Election has ended.'}
+										'Elections has ended.'}
 								</Typography>
 								<Divider />
 							</Grid>
