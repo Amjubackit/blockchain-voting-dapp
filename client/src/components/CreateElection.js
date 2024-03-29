@@ -67,7 +67,7 @@ export default function CreateElection({ contract, web3, currentAccount }) {
 						<TextField
 							fullWidth
 							id="start-countdown"
-							label="Election Start Countdown (minutes)"
+							label="Election Start Countdown (seconds)"
 							variant="outlined"
 							value={startCountdown}
 							onChange={handleCountdownChange}
@@ -80,7 +80,7 @@ export default function CreateElection({ contract, web3, currentAccount }) {
 						<TextField
 							fullWidth
 							id="duration"
-							label="Election Duration (minutes)"
+							label="Election Duration (seconds)"
 							variant="outlined"
 							value={duration}
 							onChange={handleDurationChange}
