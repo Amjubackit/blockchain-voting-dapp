@@ -9,21 +9,24 @@ export default function CountdownTimer({
 	variant,
 	itemType,
 }) {
-	const [startCountdown, setCountdown] = useState(duration * 60);
+	const [startCountdown, setCountdown] = useState(duration);
 
 	useEffect(() => {
+		if (startCountdown == 0) {
+			return;
+		}
 		const interval = setInterval(() => {
 			setCountdown((currentCountdown) => {
 				const updatedCountdown = currentCountdown - 1;
+				localStorage.setItem(itemType, updatedCountdown.toString());
 				if (updatedCountdown <= 0) {
 					clearInterval(interval);
+					console.log(
+						'CALLING onCountdownComplete FROM CountdownTimer'
+					);
 					onCountdownComplete();
 					return 0;
 				}
-				localStorage.setItem(
-					itemType,
-					(updatedCountdown / 60).toString()
-				);
 				return updatedCountdown;
 			});
 		}, 1000);
