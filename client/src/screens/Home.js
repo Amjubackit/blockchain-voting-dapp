@@ -72,11 +72,13 @@ export default function Home() {
 	const handleCountdownComplete = async () => {
 		try {
 			console.log('GOT IN handleCountdownComplete');
-			localStorage.clear();
+			localStorage.removeItem('preElectionPeriod');
 			if (contract && role === RoleEnum.ADMIN) {
 				await contract.methods
 					.startElection(electionDuration)
 					.send({ from: currentAccount });
+				getElectionState();
+				window.location.reload();
 			}
 		} catch (error) {
 			console.error('Error:', error);
@@ -85,10 +87,13 @@ export default function Home() {
 
 	const handleEnd = async () => {
 		try {
+			localStorage.removeItem('electionDuration');
 			if (contract && role === RoleEnum.ADMIN) {
 				await contract.methods
 					.endElection()
 					.send({ from: currentAccount });
+				getElectionState();
+				window.location.reload();
 			}
 		} catch (error) {
 			console.error('Error:', error);
@@ -159,7 +164,7 @@ export default function Home() {
 					<Header role={role} />
 					<Grid item xs={12} align="center">
 						{electionState === ElectionStateEnum.IN_PROGRESS &&
-							electionDuration && (
+							electionDuration !== 0 && (
 								<CountdownTimer
 									text={'Election Ends In'}
 									duration={electionDuration}

@@ -97,7 +97,7 @@ export default function Vote({ contract, currentAccount }) {
 							{electionState === ElectionStateEnum.IN_PROGRESS &&
 								'VOTE FOR YOUR FAVORITE CANDIDATE'}
 							{electionState === ElectionStateEnum.ENDED &&
-								'ELECTION ENDED.'}
+								'ELECTION ENDED'}
 						</Typography>
 						<Divider />
 					</Grid>
