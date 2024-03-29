@@ -3,11 +3,11 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-import RoleEnum, { ElectionStateEnum } from '../utils/enums';
+import { ElectionStateEnum } from '../utils/enums';
 import CreateElection from '../components/CreateElection';
 import Candidate from '../components/CandidateCard';
 
-export default function Admin({ role, contract, web3, currentAccount }) {
+export default function Admin({ contract, web3, currentAccount }) {
 	const [electionState, setElectionState] = useState(0);
 	const [candidates, setCandidates] = useState([]);
 	const [loading, setLoading] = useState(false);

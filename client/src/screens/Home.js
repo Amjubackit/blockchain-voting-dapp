@@ -20,22 +20,13 @@ export default function Home() {
 	const [loading, setLoading] = useState(true);
 	const [electionState, setElectionState] = useState(0);
 
-	// Load state from local storage to fix state wipe on refresh
-	const [showCountdown, setShowCountdown] = useState(() => {
-		return localStorage.getItem('showCountdown') || false;
+	const [preElectionPeriod, setPreElectionPeriod] = useState(() => {
+		const savedValue = localStorage.getItem('preElectionPeriod');
+		return savedValue ? Number(savedValue) : 0;
 	});
 
-	const [electionCreated, setElectionCreated] = useState(() => {
-		return localStorage.getItem('electionCreated') || false;
-	});
-
-	const [countdown, setCountdown] = useState(() => {
-		const savedCountdown = localStorage.getItem('countdown');
-		return savedCountdown ? Number(savedCountdown) : 0;
-	});
-
-	const [contractDuration, setContractDuration] = useState(() => {
-		const savedDuration = localStorage.getItem('contractDuration');
+	const [electionDuration, setElectionDuration] = useState(() => {
+		const savedDuration = localStorage.getItem('electionDuration');
 		return savedDuration ? Number(savedDuration) : 0;
 	});
 
@@ -70,17 +61,14 @@ export default function Home() {
 		}
 	};
 
-	const handleOnCountdownComplete = async () => {
-		setShowCountdown(false);
-		localStorage.clear();
-
+	const handleCountdownComplete = async () => {
 		try {
+			localStorage.clear();
 			if (contract && role === RoleEnum.ADMIN) {
 				await contract.methods
-					.startElection(contractDuration)
+					.startElection(electionDuration)
 					.send({ from: currentAccount });
 			}
-			setLoading(false);
 		} catch (error) {
 			console.error('Error:', error);
 		}
@@ -106,6 +94,9 @@ export default function Home() {
 				const stateChangedListener = contract.events
 					.ElectionStateChanged()
 					.on('data', (event) => {
+						console.log(
+							`GOT NEW STATE: ${event.returnValues.newState}`
+						);
 						setElectionState(event.returnValues.newState);
 					});
 
@@ -116,15 +107,15 @@ export default function Home() {
 		initWeb3AndContract();
 
 		const handleElectionCreated = (event) => {
+			console.log('handleElectionCreated called in Home');
 			const { duration, startCountdown } = event.detail;
-			setCountdown(startCountdown);
-			setContractDuration(duration);
-			setElectionCreated(true);
-			setShowCountdown(true);
-			localStorage.setItem('countdown', startCountdown.toString());
-			localStorage.setItem('contractDuration', duration.toString());
-			localStorage.setItem('electionCreated', true.toString());
-			localStorage.setItem('showCountdown', true.toString());
+			setElectionDuration(duration);
+			setPreElectionPeriod(startCountdown);
+			localStorage.setItem('electionDuration', duration.toString());
+			localStorage.setItem(
+				'preElectionPeriod',
+				startCountdown.toString()
+			);
 		};
 
 		window.addEventListener('electionCreated', handleElectionCreated);
@@ -160,21 +151,21 @@ export default function Home() {
 				<Box>
 					<Header role={role} />
 					<Grid item xs={12} align="center">
-						{electionState === ElectionStateEnum.IN_PROGRESS && (
-							<CountdownTimer
-								text={'Election Ends In'}
-								duration={contractDuration}
-								onCountdownComplete={handleEnd}
-								variant={'h6'}
-								itemType={'contractDuration'}
-							/>
-						)}
+						{electionState === ElectionStateEnum.IN_PROGRESS &&
+							electionDuration && (
+								<CountdownTimer
+									text={'Election Ends In'}
+									duration={electionDuration}
+									onCountdownComplete={handleEnd}
+									variant={'h6'}
+									itemType={'electionDuration'}
+								/>
+							)}
 					</Grid>
-					{(!electionCreated || !showCountdown) && (
+					{preElectionPeriod === 0 && (
 						<Box>
 							{role === RoleEnum.ADMIN && (
 								<Admin
-									role={role}
 									contract={contract}
 									web3={web3}
 									currentAccount={currentAccount}
@@ -188,13 +179,13 @@ export default function Home() {
 							)}
 						</Box>
 					)}
-					{showCountdown && (
+					{preElectionPeriod !== 0 && (
 						<CountdownTimer
 							text={'Election Starts In'}
-							duration={countdown}
-							onCountdownComplete={handleOnCountdownComplete}
+							duration={preElectionPeriod}
+							onCountdownComplete={handleCountdownComplete}
 							variant={'h1'}
-							itemType={'countdown'}
+							itemType={'preElectionPeriod'}
 						/>
 					)}
 				</Box>
