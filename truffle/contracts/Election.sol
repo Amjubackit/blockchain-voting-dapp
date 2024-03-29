@@ -50,14 +50,14 @@ contract Election {
         electionState = State.InProgress;
         startTime = block.timestamp;
         duration = _duration * 60;
-        emit ElectionStateChanged(electionState);
+        emit ElectionStateChanged();
     }
 
     function endElection() public {
         require(msg.sender == owner);
         require(electionState == State.InProgress);
         electionState = State.Ended;
-        emit ElectionStateChanged(electionState);
+        emit ElectionStateChanged();
     }
 
     function addCandidate(string memory _name) public {
