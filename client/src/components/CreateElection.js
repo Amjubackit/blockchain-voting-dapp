@@ -9,8 +9,8 @@ import Candidate from '../components/CandidateCard';
 import CandidateForm from '../components/CandidateForm';
 
 export default function CreateElection({ contract, web3, currentAccount }) {
-	const [startCountdown, setStartCountdown] = useState(5);
-	const [duration, setDuration] = useState(5);
+	const [startCountdown, setStartCountdown] = useState(1);
+	const [duration, setDuration] = useState(120);
 	const [candidates, setCandidates] = useState([]);
 
 	const getCandidates = async () => {
@@ -61,13 +61,13 @@ export default function CreateElection({ contract, web3, currentAccount }) {
 	return (
 		<Box sx={{ flexGrow: 2, marginTop: 4 }}>
 			<Grid container spacing={2} justifyContent="center">
-				{/* Create Election Stack */}
+				{/* Create Elections Stack */}
 				<Grid item xs={12} sm={8}>
 					<Stack spacing={2}>
 						<TextField
 							fullWidth
 							id="start-countdown"
-							label="Election Start Countdown (seconds)"
+							label="Elections Start Countdown (seconds)"
 							variant="outlined"
 							value={startCountdown}
 							onChange={handleCountdownChange}
@@ -80,7 +80,7 @@ export default function CreateElection({ contract, web3, currentAccount }) {
 						<TextField
 							fullWidth
 							id="duration"
-							label="Election Duration (seconds)"
+							label="Elections Duration (seconds)"
 							variant="outlined"
 							value={duration}
 							onChange={handleDurationChange}
@@ -93,8 +93,9 @@ export default function CreateElection({ contract, web3, currentAccount }) {
 						<Button
 							variant="contained"
 							onClick={handleElectionCreated}
+							disabled={duration <= 0 || startCountdown <= 0}
 						>
-							Create Election
+							Create Elections
 						</Button>
 					</Stack>
 				</Grid>

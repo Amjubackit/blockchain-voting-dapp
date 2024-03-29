@@ -32,7 +32,7 @@ export default function CandidateForm({ contract, web3, currentAccount }) {
 				value={name}
 				onChange={handleNameChange}
 			/>
-			<Button variant="contained" onClick={handleForm}>
+			<Button variant="contained" onClick={handleForm} disabled={!name}>
 				Add Candidates
 			</Button>
 		</Stack>

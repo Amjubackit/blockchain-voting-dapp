@@ -12,6 +12,7 @@ import CountdownTimer from '../components/CountdownTimer.js';
 
 export default function Home() {
 	console.log('Home called');
+	// localStorage.clear(); // wipes out timer on refresh - for long duration testing
 	const navigate = useNavigate();
 	const [role, setRole] = useState(RoleEnum.USER);
 	const [web3, setWeb3] = useState(null);
@@ -78,14 +79,15 @@ export default function Home() {
 					.startElection(electionDuration)
 					.send({ from: currentAccount });
 				getElectionState();
-				window.location.reload();
 			}
 		} catch (error) {
 			console.error('Error:', error);
+		} finally {
+			window.location.reload();
 		}
 	};
 
-	const handleEnd = async () => {
+	const handleElectionEnd = async () => {
 		try {
 			localStorage.removeItem('electionDuration');
 			if (contract && role === RoleEnum.ADMIN) {
@@ -93,10 +95,11 @@ export default function Home() {
 					.endElection()
 					.send({ from: currentAccount });
 				getElectionState();
-				window.location.reload();
 			}
 		} catch (error) {
 			console.error('Error:', error);
+		} finally {
+			window.location.reload();
 		}
 	};
 
@@ -166,9 +169,9 @@ export default function Home() {
 						{electionState === ElectionStateEnum.IN_PROGRESS &&
 							electionDuration !== 0 && (
 								<CountdownTimer
-									text={'Election Ends In'}
+									text={'Time Left To Vote'}
 									duration={electionDuration}
-									onCountdownComplete={handleEnd}
+									onCountdownComplete={handleElectionEnd}
 									variant={'h6'}
 									itemType={'electionDuration'}
 								/>
@@ -193,10 +196,10 @@ export default function Home() {
 					)}
 					{preElectionPeriod !== 0 && (
 						<CountdownTimer
-							text={'Election Starts In'}
+							text={'Countdown to Election Start'}
 							duration={preElectionPeriod}
 							onCountdownComplete={handleCountdownComplete}
-							variant={'h1'}
+							variant={'h2'}
 							itemType={'preElectionPeriod'}
 						/>
 					)}
