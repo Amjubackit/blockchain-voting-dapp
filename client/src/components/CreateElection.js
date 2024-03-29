@@ -9,8 +9,8 @@ import Candidate from '../components/CandidateCard';
 import CandidateForm from '../components/CandidateForm';
 
 export default function CreateElection({ contract, web3, currentAccount }) {
-	const [startCountdown, setStartCountdown] = useState(0);
-	const [duration, setDuration] = useState(0);
+	const [startCountdown, setStartCountdown] = useState(5);
+	const [duration, setDuration] = useState(5);
 	const [candidates, setCandidates] = useState([]);
 
 	const getCandidates = async () => {

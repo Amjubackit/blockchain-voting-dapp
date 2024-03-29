@@ -31,6 +31,13 @@ export default function Vote({ contract, currentAccount }) {
 		}
 	};
 
+	const getElectionState = async () => {
+		if (contract) {
+			const state = await contract.methods.getElectionState().call();
+			setElectionState(parseInt(state));
+		}
+	};
+
 	const voteCandidate = async (candidate) => {
 		try {
 			if (contract) {
@@ -55,16 +62,24 @@ export default function Vote({ contract, currentAccount }) {
 
 	useEffect(() => {
 		getCandidates();
+		getElectionState();
 		if (contract) {
+			const candidateChangedListener = contract.events
+				.CandidateAdded()
+				.on('data', () => {
+					getCandidates();
+				});
 			const stateChangedListener = contract.events
 				.ElectionStateChanged()
-				.on('data', (event) => {
-					setElectionState(event.returnValues.newState);
+				.on('data', () => {
+					getElectionState();
 				});
-
-			return () => stateChangedListener.unsubscribe();
+			return () => {
+				candidateChangedListener.unsubscribe();
+				stateChangedListener.unsubscribe();
+			};
 		}
-	}, []);
+	}, [contract]);
 
 	return (
 		<Box>

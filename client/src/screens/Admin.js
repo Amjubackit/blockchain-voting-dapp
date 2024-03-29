@@ -27,24 +27,34 @@ export default function Admin({ contract, web3, currentAccount }) {
 		}
 	};
 
+	const getElectionState = async () => {
+		if (contract) {
+			const state = await contract.methods.getElectionState().call();
+			setElectionState(parseInt(state));
+			setLoading(false);
+		}
+	};
+
 	useEffect(() => {
+		console.log('ADMIN - useEffect triggered');
 		getCandidates();
-		const candidateAddedListener = contract.events
-			.CandidateAdded()
-			.on('data', (event) => {
-				getCandidates();
-			});
-
-		const stateChangedListener = contract.events
-			.ElectionStateChanged()
-			.on('data', (event) => {
-				setElectionState(event.returnValues.newState);
-			});
-
-		return () => {
-			candidateAddedListener.unsubscribe();
-			stateChangedListener.unsubscribe();
-		};
+		getElectionState();
+		if (contract) {
+			const candidateChangedListener = contract.events
+				.CandidateAdded()
+				.on('data', () => {
+					getCandidates();
+				});
+			const stateChangedListener = contract.events
+				.ElectionStateChanged()
+				.on('data', () => {
+					getElectionState();
+				});
+			return () => {
+				candidateChangedListener.unsubscribe();
+				stateChangedListener.unsubscribe();
+			};
+		}
 	}, [contract]);
 
 	return (

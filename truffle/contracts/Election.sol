@@ -32,7 +32,7 @@ contract Election {
 
     event Voted(uint256 indexed _candidateId);
     event CandidateAdded();
-    event ElectionStateChanged(State newState);
+    event ElectionStateChanged();
 
     modifier isVotingAllowed() {
         require(
@@ -70,6 +70,10 @@ contract Election {
         candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);
         candidatesCount++;
         emit CandidateAdded();
+    }
+
+    function getElectionState() public view returns (State) {
+        return electionState;
     }
 
     function getRole(address _current) public view returns (uint256) {

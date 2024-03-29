@@ -36,6 +36,7 @@ export default function Home() {
 			const web3 = await getWeb3();
 			const accounts = await web3.eth.getAccounts();
 			const networkId = await web3.eth.net.getId();
+
 			const deployedNetwork = ElectionContract.networks[networkId];
 			const instance = new web3.eth.Contract(
 				ElectionContract.abi,
@@ -45,10 +46,17 @@ export default function Home() {
 			setCurrentAccount(accounts[0]);
 			setContract(instance);
 			setLoading(false);
-			console.log('loadWeb3 finished');
 		} catch (error) {
 			console.error('Error:', error);
 			navigate('/');
+		}
+	};
+
+	const getElectionState = async () => {
+		if (contract) {
+			const state = await contract.methods.getElectionState().call();
+			setElectionState(parseInt(state));
+			setLoading(false);
 		}
 	};
 
@@ -88,25 +96,23 @@ export default function Home() {
 	};
 
 	useEffect(() => {
+		console.log('HOME - useEffect triggered');
 		getRole();
-		const initWeb3AndContract = async () => {
+		getElectionState();
+		const initWeb3 = async () => {
 			await loadWeb3();
 			if (contract) {
 				const stateChangedListener = contract.events
 					.ElectionStateChanged()
-					.on('data', (event) => {
-						console.log(
-							`GOT NEW STATE: ${event.returnValues.newState}`
-						);
-						setElectionState(event.returnValues.newState);
+					.on('data', () => {
+						getElectionState();
 					});
-
-				return () => stateChangedListener.unsubscribe();
+				return () => {
+					stateChangedListener.unsubscribe();
+				};
 			}
 		};
-
-		initWeb3AndContract();
-
+		initWeb3();
 		const handleElectionCreated = (event) => {
 			console.log('handleElectionCreated called in Home');
 			const { duration, startCountdown } = event.detail;
