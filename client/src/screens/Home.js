@@ -63,6 +63,7 @@ export default function Home() {
 
 	const handleCountdownComplete = async () => {
 		try {
+			console.log('GOT IN handleCountdownComplete');
 			localStorage.clear();
 			if (contract && role === RoleEnum.ADMIN) {
 				await contract.methods
