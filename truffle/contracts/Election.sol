@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+import "./VoterRewardToken.sol";
 
 contract Election {
     enum State {
@@ -33,6 +34,17 @@ contract Election {
     event Voted(uint256 indexed _candidateId);
     event CandidateAdded();
     event ElectionStateChanged();
+
+    VoterRewardToken public voterRewardToken;
+
+    function setVoterRewardTokenAddress(address _tokenAddress) public {
+        require(msg.sender == owner, "Only owner can set token address");
+        voterRewardToken = VoterRewardToken(_tokenAddress);
+    }
+
+    function getVoterRewardTokenAddress() public view returns (address) {
+        return address(voterRewardToken);
+    }
 
     modifier isVotingAllowed() {
         require(
@@ -93,6 +105,8 @@ contract Election {
 
         candidates[_candidateId].voteCount++;
         voted[msg.sender] = true;
+
+        voterRewardToken.mint(msg.sender, 1000);
 
         emit Voted(_candidateId);
     }

@@ -12,7 +12,7 @@ export default function CountdownTimer({
 	const [startCountdown, setCountdown] = useState(duration);
 
 	useEffect(() => {
-		if (startCountdown == 0) {
+		if (startCountdown === 0) {
 			return;
 		}
 		const interval = setInterval(() => {
@@ -32,7 +32,7 @@ export default function CountdownTimer({
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, [startCountdown, onCountdownComplete]);
+	}, [startCountdown, onCountdownComplete, itemType]);
 
 	const formatTime = (time) => {
 		const hours = Math.floor(time / 3600);
