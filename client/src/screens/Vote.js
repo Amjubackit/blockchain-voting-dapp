@@ -160,13 +160,24 @@ export default function Vote({ contract, currentAccount }) {
 								justifyContent: 'center',
 							}}
 						>
-							{candidates &&
-								candidates.map((candidate, index) => (
-									<Box sx={{ mx: 2 }} key={index}>
+							{[...candidates]
+								.sort((a, b) => b.votes - a.votes)
+								.map((candidate, index) => (
+									<Box
+										sx={{
+											mx: 2,
+										}}
+										key={candidate.id || index}
+									>
 										<Candidate
-											id={index}
+											id={candidate.id}
 											name={candidate.name}
 											voteCount={candidate.votes}
+											highlight={
+												index === 0 &&
+												electionState ===
+													ElectionStateEnum.ENDED
+											}
 										/>
 									</Box>
 								))}

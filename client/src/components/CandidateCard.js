@@ -1,15 +1,22 @@
-import * as React from 'react';
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
+import {
+	Card,
+	CardHeader,
+	CardContent,
+	CardMedia,
+	CardActions,
+	Typography,
+} from '@mui/material';
 import defaultAvatar from '../images/avatar.png';
 
-export default function Candidate({ id, name, voteCount }) {
+export default function Candidate({ id, name, voteCount, highlight }) {
 	return (
-		<Card>
+		<Card
+			sx={{
+				backgroundColor:
+					highlight && voteCount > 0 ? 'brown' : 'inherit',
+				border: highlight && voteCount > 0 ? '4px solid red' : 'none',
+			}}
+		>
 			<CardHeader
 				title={
 					<Typography align="center" variant="subtitle1">
@@ -26,11 +33,11 @@ export default function Candidate({ id, name, voteCount }) {
 				/>
 			</CardContent>
 			<CardActions sx={{ justifyContent: 'center' }}>
-				{voteCount && (
-					<Typography align="center" variant="">
+				{voteCount ? (
+					<Typography align="center">
 						<strong>{voteCount}</strong> votes
 					</Typography>
-				)}
+				) : null}
 			</CardActions>
 		</Card>
 	);

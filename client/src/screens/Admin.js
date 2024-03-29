@@ -107,15 +107,27 @@ export default function Admin({ contract, web3, currentAccount }) {
 									marginTop: 4,
 								}}
 							>
-								{candidates.map((candidate, index) => (
-									<Box sx={{ mx: 2 }} key={index}>
-										<Candidate
-											id={index}
-											name={candidate.name}
-											voteCount={candidate.votes}
-										/>
-									</Box>
-								))}
+								{[...candidates]
+									.sort((a, b) => b.votes - a.votes)
+									.map((candidate, index) => (
+										<Box
+											sx={{
+												mx: 2,
+											}}
+											key={candidate.id || index}
+										>
+											<Candidate
+												id={candidate.id}
+												name={candidate.name}
+												voteCount={candidate.votes}
+												highlight={
+													index === 0 &&
+													electionState ===
+														ElectionStateEnum.ENDED
+												}
+											/>
+										</Box>
+									))}
 							</Box>
 						</Grid>
 					)}
